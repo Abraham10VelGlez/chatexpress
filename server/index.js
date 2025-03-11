@@ -9,20 +9,27 @@ const app = express()
 //implementacion de servidor http
 const nodeserver = createServer(app)
 ///usarl el socket io de bidireccional entrada y salida
-//const io = new Server(nodeserver)
-
+const io = new Server(nodeserver)
+/*
 const io = new Server(nodeserver, {
     cors: {
         origin: "*", // Cambia según la URL de tu frontend
         methods: ["GET", "POST"]
     }
 });
-
+*/
 //cuando el sokcet tenga una cone xion ejecuta esto
 io.on('connection', (socket) => {
     console.log(' user has connected, hello');
     socket.on('disconnect', () => {
         console.log('user has disconnected, bye');
+    })
+
+    socket.on('chat message', (msm) => {
+        console.log('llegada de mensaje:' + msm);
+        //es un brokcats para un mensaje para todos para esparcir
+        io.emit('chat message', msm)
+
     })
 
 });
@@ -38,7 +45,7 @@ app.get('/', (req, res) => {
 
 //escucha solo al servidor 
 // app.listen(port, () => {
-    // console.log(`abrajam, hola server running on to port ${port}`);
+// console.log(`abrajam, hola server running on to port ${port}`);
 // })
 
 nodeserver.listen(port, () => {

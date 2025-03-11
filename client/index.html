@@ -5,11 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>chatsitox</title>
-    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js">
-    </script>
-    <script>
-        const socket = io()
-    </script>
+
     <style>
         body {
             margin: 0;
@@ -65,7 +61,7 @@
         }
 
         #messages>li:nth-child(odd) {
-            background: #efefef;
+            background: #caff39;
         }
     </style>
 </head>
@@ -80,5 +76,32 @@
         <button type="submit"> EnviaR </button>
     </form>
 </body>
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+<script>
+    const socket = io();
+
+    const formz = document.getElementById('form');
+    const message = document.getElementById('input');
+
+    const msm = document.getElementById('messages')
+
+    //escuchar
+    socket.on('chat message', (msg) => {
+        const item = `<li>${msg}</li>`
+        msm.insertAdjacentHTML('beforeend', item)
+    })
+
+    //emitir
+    formz.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (message.value) {
+            //envia mensaje
+            socket.emit('chat message', message.value);
+            //setea el input
+            message.value = '';
+        }
+    })
+
+</script>
 
 </html>
