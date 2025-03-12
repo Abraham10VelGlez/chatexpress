@@ -9,7 +9,9 @@ const app = express()
 //implementacion de servidor http
 const nodeserver = createServer(app)
 ///usarl el socket io de bidireccional entrada y salida
-const io = new Server(nodeserver)
+const io = new Server(nodeserver,{
+    connectionStateRecovery: {}
+})
 /*
 const io = new Server(nodeserver, {
     cors: {
