@@ -78,30 +78,75 @@
 </body>
 <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
 <script>
-    const socket = io();
+    (async () => {
 
-    const formz = document.getElementById('form');
-    const message = document.getElementById('input');
+        const getUsername = async () => {
+            /*
+            pARA QUE El username cambie en cada nueva pestaña,
+             en lugar de localStorage,
+              usa sessionStorage. sessionStorage solo dura mientras la pestaña
+               está abierta y se borra cuando la pestaña se cierra.
+            */
+            //const namex = localStorage.getItem('username');
+            const namex = sessionStorage.getItem('username');
+            if (namex) {
+                console.log('usuario cookies : ' + namex);
+                return namex
+            }
+            const result = await fetch('https://random-data-api.com/api/users/random_user')
+            const { username: randomUsername } = await result.json()
+            console.log(randomUsername);
 
-    const msm = document.getElementById('messages')
+            //localStorage.setItem('username', randomUsername)
+            sessionStorage.setItem('username', randomUsername)
+            return randomUsername
 
-    //escuchar
-    socket.on('chat message', (msg) => {
-        const item = `<li>${msg}</li>`
-        msm.insertAdjacentHTML('beforeend', item)
-    })
-
-    //emitir
-    formz.addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (message.value) {
-            //envia mensaje
-            socket.emit('chat message', message.value);
-            //setea el input
-            message.value = '';
         }
-    })
 
+        const username = await getUsername();
+        const socket = io({
+            ///podemos enviar informacion agregada a cada peticion
+            //para saber donde se quedo el cliente
+            auth: {
+                token: '999',
+                username: username,
+                serverOffset: 0
+            }
+            //username: 'Abraham',
+        });
+
+
+
+
+
+
+        const formz = document.getElementById('form');
+        const message = document.getElementById('input');
+
+        const msm = document.getElementById('messages')
+
+
+        //escuchar
+        socket.on('chat message', (msg, serverOffset, username) => {
+            const item = `<li>${msg}
+                <small>${username}</small>                
+                </li>`
+            msm.insertAdjacentHTML('beforeend', item)
+            //para saber cual es el ultimo mensaje del lado del cliente
+            socket.auth.serverOffset = serverOffset
+        })
+
+        //emitir
+        formz.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (message.value) {
+                //envia mensaje
+                socket.emit('chat message', message.value, username);
+                //setea el input
+                message.value = '';
+            }
+        })
+    })();
 </script>
 
 </html>
