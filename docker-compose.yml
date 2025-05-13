@@ -1,0 +1,34 @@
+services:
+  server:
+    container_name: chatapp
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/usr/src/serveravg
+      - /usr/src/serveravg/node_modules
+    #command: yarn start
+    command: yarn dev
+    depends_on:
+      - databaseavg
+
+  databaseavg:
+    image: postgres:9.6
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: "dictaval"
+      POSTGRES_PASSWORD: "secret"
+
+    container_name: "bddictaval"
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+
+#ESTE ARCHIVO ES PARA USO DE LA APLICACION LOCAL EN DOCKER.COMPOSE USANDO LOS COMANDOS DE :
+#COMANDO PARA EJECUTAR DOCKER.COMPOSE.YML
+#docker-compose up --build
